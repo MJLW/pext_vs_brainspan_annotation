@@ -152,7 +152,7 @@ workflow {
     //    .map { chr -> tuple(chr, file("/home/mattijn/Data/programming/nextflow/pext_vs_bs_annotation/in/hg19_${chr}_rate_v5.2_TFBS_correction_sorted.vcf.gz")) }
     //    .set { roulette_ch }
 
-    roulette_ch | BCSQ | AnnotateDISTAL | set { roulette_annotated }
+    roulette_ch | BCSQ | set { roulette_annotated }
 
     roulette_annotated | PEXT | map { chr, tsv -> tuple(chr, "PEXT", tsv) } | set { pext_tsvs }
     // roulette_annotated | BS | map { chr, tsv -> tuple(chr, "BrainSpan", tsv) } | set { bs_tsvs }
@@ -160,3 +160,4 @@ workflow {
     pext_tsvs /*.concat(bs_tsvs)*/ | CalculateBinnedScores | set { scores }
 
 }
+

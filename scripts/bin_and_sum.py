@@ -32,7 +32,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    df = pl.read_csv(args.input, separator="\t", schema_overrides={"MR": pl.String, args.tag: pl.String}) \
+    df = pl.read_csv(args.input, separator="\t", schema_overrides={"MR": pl.String, "DISTAL": pl.Categorical, args.tag: pl.String}) \
         .filter(pl.col("CONSEQUENCE").str.contains("NMD_transcript").not_()) \
         .with_columns(pl.col("CONSEQUENCE").str.split("&").list.get(0).alias("CONSEQUENCE")) \
         .drop(["TRANSCRIPT"]) \
@@ -45,9 +45,9 @@ def main():
         .with_columns(
             pl.col(args.tag).cut(breaks=[0.2, 0.4, 0.6, 0.8], labels=['0.0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0']).alias("BIN"),
         ) \
-        .group_by(["GENE", "BIN", "CONSEQUENCE"]) \
+        .group_by(["GENE", "BIN", "CONSEQUENCE", "DISTAL"]) \
         .agg(pl.sum("MR")) \
-        .sort(["GENE", "BIN"])
+        .sort(["GENE", "BIN", "DISTAL"])
 
     df.write_csv(args.output, separator="\t")
 
